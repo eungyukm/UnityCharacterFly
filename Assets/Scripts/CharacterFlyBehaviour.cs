@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-// FlyBehaviour inherits from GenericBehaviour. This class corresponds to the flying behaviour.
-public class FlyBehaviour : GenericBehaviour
+public class CharacterFlyBehaviour : GenericBehaviour
 {
 	public string flyButton = "Fly";              // Default fly button.
 	public float flySpeed = 4.0f;                 // Default flying speed.
@@ -12,7 +13,7 @@ public class FlyBehaviour : GenericBehaviour
 	private bool fly = false;                     // Boolean to determine whether or not the player activated fly mode.
 	private CapsuleCollider col;                  // Reference to the player capsulle collider.
 
-
+	ApplyFlyRotating applyFlyRotating;
 
 	// Start is always called after any Awake functions.
 	void Start()
@@ -22,13 +23,15 @@ public class FlyBehaviour : GenericBehaviour
 		col = this.GetComponent<CapsuleCollider>();
 		// Subscribe this behaviour on the manager.
 		behaviourManager.SubscribeBehaviour(this);
+
+		applyFlyRotating = new ApplyFlyRotating(behaviourManager.GetRigidBody, behaviourManager.playerCamera);
 	}
 
 	// Update is used to set features regardless the active behaviour.
 	void Update()
 	{
 		// Toggle fly by input, only if there is no overriding state or temporary transitions.
-		if (Input.GetButtonDown(flyButton) && !behaviourManager.IsOverriding() 
+		if (Input.GetButtonDown(flyButton) && !behaviourManager.IsOverriding()
 			&& !behaviourManager.GetTempLockStatus(behaviourManager.GetDefaultBehaviour))
 		{
 			fly = !fly;
@@ -84,7 +87,8 @@ public class FlyBehaviour : GenericBehaviour
 	void FlyManagement(float horizontal, float vertical)
 	{
 		// Add a force player's rigidbody according to the fly direction.
-		Vector3 direction = Rotating(horizontal, vertical);
+		Vector3 direction = applyFlyRotating.Rotating(horizontal, vertical, behaviourManager.IsMoving());
+		applyFlyRotating.ApplyColliderDirection(col, null,horizontal, vertical);
 		behaviourManager.GetRigidBody.AddForce((direction * flySpeed * 100 * (behaviourManager.IsSprinting() ? sprintFactor : 1)), ForceMode.Acceleration);
 	}
 
