@@ -39,7 +39,7 @@ public class CharacterFlyBehaviour : GenericBehaviour
 			// Force end jump transition.
 			behaviourManager.UnlockTempBehaviour(behaviourManager.GetDefaultBehaviour);
 
-			// Obey gravity. It's the law!
+			// TODO : RigidBody ²ô±â
 			behaviourManager.GetRigidBody.useGravity = !fly;
 
 			// Player is flying.
@@ -89,47 +89,10 @@ public class CharacterFlyBehaviour : GenericBehaviour
 		// Add a force player's rigidbody according to the fly direction.
 		Vector3 direction = applyFlyRotating.Rotating(horizontal, vertical, behaviourManager.IsMoving());
 		applyFlyRotating.ApplyColliderDirection(col, null,horizontal, vertical);
+		if ((behaviourManager.IsMoving() && direction != Vector3.zero))
+		{
+			behaviourManager.SetLastDirection(direction);
+		}
 		behaviourManager.GetRigidBody.AddForce((direction * flySpeed * 100 * (behaviourManager.IsSprinting() ? sprintFactor : 1)), ForceMode.Acceleration);
-	}
-
-	// Rotate the player to match correct orientation, according to camera and key pressed.
-	Vector3 Rotating(float horizontal, float vertical)
-	{
-		Vector3 forward = behaviourManager.playerCamera.TransformDirection(Vector3.forward);
-		// Camera forward Y component is relevant when flying.
-		forward = forward.normalized;
-
-		Vector3 right = new Vector3(forward.z, 0, -forward.x);
-
-		// Calculate target direction based on camera forward and direction key.
-		Vector3 targetDirection = forward * vertical + right * horizontal;
-
-		// Rotate the player to the correct fly position.
-		if ((behaviourManager.IsMoving() && targetDirection != Vector3.zero))
-		{
-			Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-
-			Quaternion newRotation = Quaternion.Slerp(behaviourManager.GetRigidBody.rotation, targetRotation, behaviourManager.turnSmoothing);
-
-			behaviourManager.GetRigidBody.MoveRotation(newRotation);
-			behaviourManager.SetLastDirection(targetDirection);
-		}
-
-		// Player is flying and idle?
-		if (!(Mathf.Abs(horizontal) > 0.2 || Mathf.Abs(vertical) > 0.2))
-		{
-			// Rotate the player to stand position.
-			behaviourManager.Repositioning();
-			// Set collider direction to vertical.
-			col.direction = 1;
-		}
-		else
-		{
-			// Set collider direction to horizontal.
-			col.direction = 2;
-		}
-
-		// Return the current fly direction.
-		return targetDirection;
 	}
 }

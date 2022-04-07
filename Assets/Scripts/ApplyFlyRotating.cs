@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ApplyFlyRotating
 {
-    public float turnSmoothing = 0.06f;
+    private float turnSmoothing = 0.06f;
     public Vector3 lastDirection;
     public Rigidbody playerRigidbody;
     private Transform playerCamera;
@@ -69,14 +69,20 @@ public class ApplyFlyRotating
             // 플레이어 기본 
             Repositioning();
             // Set collider direction to vertical.
-            playerController.detectCollisions = false;
+            if(playerController != null)
+            {
+                playerController.detectCollisions = false;
+            }
             SetFlyModeCollider(playerCapsuleCollider, true);
         }
         else
 		{
 			// Collider 위치 초기화
-			playerController.detectCollisions = true;
-			SetFlyModeCollider(playerCapsuleCollider, true);
+            if(playerController != null)
+            {
+			    playerController.detectCollisions = true;
+            }
+			SetFlyModeCollider(playerCapsuleCollider, false);
 		}
 	}
 

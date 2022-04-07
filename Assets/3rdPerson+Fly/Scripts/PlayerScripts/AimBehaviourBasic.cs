@@ -91,6 +91,7 @@ public class AimBehaviourBasic : GenericBehaviour
 	// LocalLateUpdate: manager is called here to set player rotation after camera rotates, avoiding flickering.
 	public override void LocalLateUpdate()
 	{
+		// ZOOM 되었을 때
 		AimManagement();
 	}
 
@@ -104,6 +105,7 @@ public class AimBehaviourBasic : GenericBehaviour
 	// Rotate the player to match correct orientation, according to camera.
 	void Rotating()
 	{
+		Debug.Log("Rotating Call!!");
 		Vector3 forward = behaviourManager.playerCamera.TransformDirection(Vector3.forward);
 		// Player is moving on ground, Y component of camera facing is not relevant.
 		forward.y = 0.0f;
